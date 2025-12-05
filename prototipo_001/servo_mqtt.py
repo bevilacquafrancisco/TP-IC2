@@ -5,8 +5,8 @@ from umqtt.simple import MQTTClient
 import json
 
 # --- CONFIGURACIÓN WIFI ---
-SSID = "TuRedWiFi"        # ¡CAMBIAR ESTO!
-PASSWORD = "TuContraseña" # ¡CAMBIAR ESTO!
+SSID = "iPhone de Francisco"        # ¡CAMBIAR ESTO!
+PASSWORD = "password" # ¡CAMBIAR ESTO!
 
 # --- CONFIGURACIÓN MQTT ---
 # Usamos el broker público para que funcione la Web sin configurar la PC local

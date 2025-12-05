@@ -54,7 +54,37 @@ function conectarMQTT() {
     };
 
     client.onMessageArrived = function(message) {
-        log("📥 [ESP32]: " + message.payloadString);
+        try {
+            // 1. Intentamos convertir el mensaje de texto (JSON) a un objeto útil
+            const datos = JSON.parse(message.payloadString);
+
+            // 2. Definimos los nombres para que sea más amigable
+            // El índice 0 está vacío porque los servos van del 1 al 4
+            const nombresServos = ["", "Base", "Hombro", "Codo", "Pinza"];
+
+            // 3. Verificamos si es el mensaje de confirmación de movimiento
+            if (datos.msg === "movimiento_ok") {
+                // Obtenemos el nombre. Si el ID es raro, usamos "Servo X" por defecto
+                const nombreServo = nombresServos[datos.servo] || ("Servo " + datos.servo);
+                
+                // 4. Formateamos el mensaje bonito
+                const mensajeBonito = `[ESP32 dice] Comando recibido. ${nombreServo} → Moviendo a ${datos.angulo_actual}°`;
+                
+                // Lo mostramos con un ícono diferente para confirmar éxito
+                log("✅ " + mensajeBonito);
+            } 
+            else if (datos.msg === "ESP32 Online") {
+                log("🚀 [ESP32]: Sistema iniciado y listo.");
+            }
+            else {
+                // Si es otro JSON desconocido, lo mostramos normal
+                log("📥 [ESP32 Datos]: " + message.payloadString);
+            }
+
+        } catch (e) {
+            // Si el mensaje NO es JSON (es texto plano o hubo error), lo mostramos tal cual
+            log("📥 [ESP32]: " + message.payloadString);
+        }
     };
 }
 
