@@ -1,0 +1,91 @@
+# ============================================================================
+# .gitignore — Brazo Robótico Pick & Place (IC2)
+# Autor: Francisco Bevilacqua
+# ============================================================================
+
+# ── Secretos y credenciales ────────────────────────────────────────────────
+# [SEC] Cualquier archivo cifrado o de credenciales, sea cual sea su ubicación.
+*.enc
+*.env
+.env
+.env.*
+!.env.example
+secrets.py
+**/secrets.py
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# [SEC] Archivo de contraseñas del broker Mosquitto (generado por
+# generar_passwd.py / mosquitto_passwd.exe).
+mosquitto-broker/passwd
+**/passwd
+*.passwd
+
+# [SEC] Por si se genera algún volcado de config con credenciales embebidas
+config.local.py
+*_credentials.*
+
+# ── Python ──────────────────────────────────────────────────────────────
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+**/venv/
+**/.venv/
+**/env/
+
+# Empaquetado / distribución
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Cachés de testing y linters
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# ── MicroPython / Firmware ESP32 ───────────────────────────────────────────
+*.mpy
+firmware/**/__pycache__/
+
+# ── Node / frontend (por si se agrega tooling en el futuro) ───────────────
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# ── Logs y datos en runtime ────────────────────────────────────────────────
+*.log
+logs/
+*.sqlite3
+*.db
+
+# ── Editores / IDEs ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Sistema operativo ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Archivos temporales propios del proyecto ───────────────────────────
+*.tmp
+*.bak
+*~

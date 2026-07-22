@@ -1,0 +1,785 @@
+/*
+  ============================================================================
+  Brazo Robótico Pick & Place — Estilos v3.0 (Refactorizado)
+  ============================================================================
+*/
+:root {
+    /* Colores principales (Prototipo 004) */
+    --color-primary: #2196F3;
+    --color-primary-dark: #1976D2;
+    --color-secondary: #4CAF50;
+    --color-warning: #FF9800;
+    --color-error: #f44336;
+    --color-success: #4CAF50;
+
+    /* Fondo y superficies */
+    --bg-dark: #0d1117;
+    --bg-medium: #161b22;
+    --bg-card: #1c2128;
+    --bg-card-hover: #22272e;
+
+    /* Textos y bordes */
+    --text-primary: #ffffff;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --border-color: #30363d;
+
+    /* Misceláneas */
+    --f-display: 'Rajdhani', sans-serif;
+    --f-mono: 'Share Tech Mono', monospace;
+    --r: 8px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Evitar scroll en la página general */
+html,
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', var(--f-display), sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+.header {
+    background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
+    border-bottom: 2px solid var(--border-color);
+    padding: 12px 20px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    font-size: 2rem;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.brand-sub {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Badges de Estado */
+.status-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.badge.ok {
+    border-color: var(--color-success);
+}
+
+.badge.err {
+    border-color: var(--color-error);
+}
+
+.badge.warn {
+    border-color: var(--color-warning);
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+}
+
+.badge.ok .badge-dot {
+    background: var(--color-success);
+    box-shadow: 0 0 6px var(--color-success);
+}
+
+.badge.err .badge-dot {
+    background: var(--color-error);
+    box-shadow: 0 0 6px var(--color-error);
+}
+
+.badge.warn .badge-dot {
+    background: var(--color-warning);
+    box-shadow: 0 0 6px var(--color-warning);
+}
+
+.badge-label {
+    font-family: var(--f-mono);
+    color: var(--text-secondary);
+}
+
+.badge-val {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Selector de Modos (Estilo P004) */
+.mode-selector {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--r);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.mode-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);
+}
+
+/* ── Layout principal (Grid Flexible) ────────────────────────────────── */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 450px;
+    /* 1 columna izq elástica, derecha fija 450px */
+    gap: 16px;
+    padding: 16px;
+    flex: 1;
+    min-height: 0;
+    /* Vital para habilitar scroll interno */
+    overflow: hidden;
+}
+
+/* Columna Izquierda: Controles con scroll propio */
+.left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    /* Scroll interno solo aquí */
+    padding-right: 8px;
+}
+
+/* Scrollbars modernos */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────── */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--r);
+    padding: 14px;
+    flex-shrink: 0;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ── Paneles de Modos ────────────────────────────────────────────────── */
+.mode-panel {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mode-panel.active {
+    display: flex;
+}
+
+/* ── Sliders (Estilo P004) ───────────────────────────────────────────── */
+.servo-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.servo-control {
+    background: var(--bg-medium);
+    padding: 12px;
+    border-radius: var(--r);
+    border: 1px solid var(--border-color);
+}
+
+.slider-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.servo-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.servo-gpio {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.slider-val {
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.servo-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--color-primary) 50%, var(--bg-dark) 50%);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.servo-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    transition: transform 0.1s;
+}
+
+.servo-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.range-markers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ── Botones ─────────────────────────────────────────────────────────── */
+.button-grid,
+.semiauto-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: var(--bg-medium);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-warning {
+    background: var(--color-warning);
+    color: #fff;
+}
+
+.btn-pallet {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-ignore {
+    background: var(--text-muted);
+    color: white;
+}
+
+.btn-clear-pallet {
+    background: var(--color-error);
+    color: white;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.btn-status {
+    background: var(--bg-medium);
+    color: var(--color-primary);
+    width: 100%;
+    border: 1px solid var(--color-primary);
+}
+
+/* ── Semi-auto Alertas ───────────────────────────────────────────────── */
+.info-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.alert-box {
+    background: rgba(255, 152, 0, 0.1);
+    border: 1px solid var(--color-warning);
+    padding: 12px;
+    border-radius: var(--r);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.alert-box.hidden {
+    display: none;
+}
+
+.alert-msg {
+    color: var(--color-warning);
+    font-weight: bold;
+}
+
+.alert-sub {
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+/* ── Pallets y Métricas (Sin cambios estructurales) ──────────────────── */
+.pallets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.pallet-card {
+    background: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    border-radius: var(--r);
+    padding: 10px;
+}
+
+.pallet-card.full {
+    border-color: var(--color-error);
+}
+
+.pallet-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.pallet-name {
+    font-weight: bold;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.pallet-badge {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.pallet-boxes {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.box-slot {
+    flex: 1;
+    height: 25px;
+    border-radius: 4px;
+    border: 1px dashed var(--border-color);
+}
+
+.box-slot.filled {
+    background: var(--color-success);
+    border: none;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    background: var(--bg-medium);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+}
+
+.metric-val {
+    color: var(--color-primary);
+    font-weight: bold;
+    font-family: var(--f-mono);
+}
+
+/* ── Consola Derecha (Fija al 100% altura disponible) ────────────────── */
+/* ── Consola Derecha (Fija al 100% altura disponible) ────────────────── */
+.right-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.console-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--r);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.console-header .card-title {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.console-ctrl {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.toggle-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-clear-log {
+    background: var(--color-error);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.console {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-dark);
+    padding: 10px;
+    font-family: var(--f-mono);
+    font-size: 0.8rem;
+}
+
+/* ── Estilos de los Mensajes de Log ── */
+.log-entry {
+    margin-bottom: 4px;
+    display: flex;
+    gap: 6px;
+    padding: 4px 6px;
+    border-left: 3px solid transparent;
+    border-radius: 3px;
+    align-items: baseline;
+}
+
+/* Colores de fondo según dirección (rx = ESP32, tx = GUI, sys = Sistema) */
+.log-entry.rx {
+    border-left-color: var(--color-success);
+    background: rgba(76, 175, 80, 0.08);
+}
+
+.log-entry.tx {
+    border-left-color: var(--color-primary);
+    background: rgba(33, 150, 243, 0.08);
+}
+
+.log-entry.sys {
+    border-left-color: var(--color-warning);
+    background: rgba(255, 152, 0, 0.05);
+}
+
+.log-ts {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.log-level {
+    width: 55px;
+    flex-shrink: 0;
+    font-weight: bold;
+    white-space: pre;
+}
+
+.log-msg {
+    word-break: break-all;
+    color: #d0d0d0;
+}
+
+/* Colores de los prefijos de origen */
+.log-origin {
+    font-weight: bold;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.log-origin.rx {
+    color: var(--color-success);
+}
+
+.log-origin.tx {
+    color: var(--color-primary);
+}
+
+.log-origin.sys {
+    color: var(--color-warning);
+}
+
+/* Colores de niveles de severidad */
+.log-entry.info .log-level {
+    color: #80d4a0;
+}
+
+.log-entry.warn .log-level {
+    color: var(--color-warning);
+}
+
+.log-entry.error .log-level {
+    color: var(--color-error);
+}
+
+.log-entry.debug .log-level {
+    color: var(--text-muted);
+}
+
+.hide-debug .log-entry.debug {
+    display: none;
+}
+
+/* ── Leyenda del Footer (Recuadros) ── */
+.console-legend {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-medium);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.leg {
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* Recuadros con borde y color de fondo tenue */
+.leg.debug {
+    background: #10141c;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.leg.info {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.leg.warn {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+}
+
+.leg.error {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+}
+
+.leg.rx-tag {
+    background: rgba(76, 175, 80, 0.15);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.leg.tx-tag {
+    background: rgba(33, 150, 243, 0.15);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+.footer {
+    background: var(--bg-medium);
+    border-top: 1px solid var(--border-color);
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.highlight {
+    color: var(--color-primary);
+    font-family: var(--f-mono);
+    font-weight: bold;
+}
+
+/* ── RESPONSIVE PARA SPLIT-SCREEN (Mitad de pantalla en 1080p) ───────── */
+@media (max-width: 1050px) {
+    .layout {
+        grid-template-columns: 1fr;
+        /* Pasa a 1 sola columna */
+        grid-template-rows: 60% 40%;
+        /* 60% controles arriba, 40% consola abajo */
+    }
+
+    .left-col {
+        padding-right: 4px;
+    }
+
+    .mode-selector {
+        flex-wrap: wrap;
+    }
+}
+
+.auth-pending .layout,
+.auth-pending .footer,
+.auth-pending .mode-selector {
+    visibility: hidden;
+}
+
+.badge-operator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}

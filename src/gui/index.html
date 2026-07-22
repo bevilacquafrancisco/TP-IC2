@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brazo Robótico · Panel de Control v3.0</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="robot_style.css" />
+</head>
+
+<body class="auth-pending">
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">🤖</div>
+        <div class="brand-text">
+          <span class="brand-title">SISTEMA PICK & PLACE</span>
+          <span class="brand-sub">Control de Brazo Robótico Industrial</span>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <div class="badge" id="badge-mqtt">
+          <span class="badge-dot"></span>
+          <span class="badge-label">MQTT</span>
+          <span class="badge-val" id="txt-mqtt">Desconectado</span>
+        </div>
+        <div class="badge" id="badge-esp">
+          <span class="badge-dot"></span>
+          <span class="badge-label">ESP32</span>
+          <span class="badge-val" id="txt-esp">Offline</span>
+        </div>
+        <div class="badge" id="badge-sensor">
+          <span class="badge-dot"></span>
+          <span class="badge-label">Sensor</span>
+          <span class="badge-val" id="txt-sensor">—</span>
+        </div>
+        <div class="badge" id="badge-mode">
+          <span class="badge-label">MODO</span>
+          <span class="badge-val" id="txt-mode">MANUAL</span>
+        </div>
+
+        <!- NUEVO: identifica al operador autenticado y permite cerrar sesión.
+             Se completa dinámicamente en robot_script.js (ver CAMBIO 5). ->
+        <div class="badge badge-operator" id="badge-operator">
+          <span class="badge-label">OPERADOR</span>
+          <span class="badge-val" id="txt-operator">—</span>
+          <button class="btn-logout" id="btn-logout" onclick="logout()" title="Cerrar sesión">⏏</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-selector">
+      <button class="mode-btn active" id="btn-manual" onclick="setMode('MANUAL')">
+        🎮 MANUAL
+      </button>
+      <button class="mode-btn" id="btn-semiauto" onclick="setMode('SEMI_AUTO')">
+        ⚡ SEMI-AUTOMÁTICO
+      </button>
+      <button class="mode-btn" id="btn-auto" onclick="setMode('AUTOMATICO')">
+        🤖 AUTOMÁTICO
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section class="left-col">
+
+      <div id="panel-manual" class="mode-panel active">
+        <div class="card">
+          <h2 class="card-title">⚙️ Control de Servos</h2>
+          <div class="servo-grid">
+            <div class="servo-control">
+              <label class="slider-label">
+                <span class="servo-name">Base <span class="servo-gpio">(GPIO 25)</span></span>
+                <span class="slider-val" id="val-s1">90°</span>
+              </label>
+              <input type="range" class="slider servo-slider" id="s1" min="0" max="180" value="90"
+                     oninput="onSlider(1,this.value)" onchange="sendServo(1,this.value)" />
+              <div class="range-markers"><span>0°</span><span>90°</span><span>180°</span></div>
+            </div>
+            
+            <div class="servo-control">
+              <label class="slider-label">
+                <span class="servo-name">Hombro <span class="servo-gpio">(GPIO 26)</span></span>
+                <span class="slider-val" id="val-s2">90°</span>
+              </label>
+              <input type="range" class="slider servo-slider" id="s2" min="0" max="180" value="90"
+                     oninput="onSlider(2,this.value)" onchange="sendServo(2,this.value)" />
+              <div class="range-markers"><span>0°</span><span>90°</span><span>180°</span></div>
+            </div>
+
+            <div class="servo-control">
+              <label class="slider-label">
+                <span class="servo-name">Codo <span class="servo-gpio">(GPIO 27)</span></span>
+                <span class="slider-val" id="val-s3">90°</span>
+              </label>
+              <input type="range" class="slider servo-slider" id="s3" min="0" max="180" value="90"
+                     oninput="onSlider(3,this.value)" onchange="sendServo(3,this.value)" />
+              <div class="range-markers"><span>0°</span><span>90°</span><span>180°</span></div>
+            </div>
+
+            <div class="servo-control">
+              <label class="slider-label">
+                <span class="servo-name">Pinza <span class="servo-gpio">(GPIO 32)</span></span>
+                <span class="slider-val" id="val-s4">90°</span>
+              </label>
+              <input type="range" class="slider servo-slider" id="s4" min="0" max="180" value="90"
+                     oninput="onSlider(4,this.value)" onchange="sendServo(4,this.value)" />
+              <div class="range-markers"><span>0° (Cerrada)</span><span>90° (Medio)</span><span>180° (Abierta)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card quick-actions">
+          <h2 class="card-title">⚡ Acciones Rápidas</h2>
+          <div class="button-grid">
+            <button class="btn btn-secondary" onclick="sendMove('home')">🏠 HOME</button>
+            <button class="btn btn-secondary" onclick="sendMove('recolectar')">📦 Recolectar</button>
+            <button class="btn btn-warning" onclick="sendMove('abrir_pinza')">🔓 Abrir Pinza</button>
+            <button class="btn btn-warning" onclick="sendMove('cerrar_pinza')">🔒 Cerrar Pinza</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-semiauto" class="mode-panel">
+        <div class="card">
+          <h2 class="card-title">⚡ Modo Semi-Automático</h2>
+          <div class="semiauto-info">
+            <p class="info-text">El sensor KY-032 detecta una caja.<br>Selecciona el destino o ignora la caja.</p>
+          </div>
+          <div id="semiauto-alert" class="alert-box hidden">
+            <div class="alert-icon">📦</div>
+            <div class="alert-msg">¡CAJA DETECTADA!<br><span class="alert-sub">Selecciona el destino:</span></div>
+          </div>
+          <div class="semiauto-btns">
+            <button class="btn btn-pallet" id="btn-semi-p1" onclick="semiDecision('P1')" disabled>
+              📍 Pallet 1
+            </button>
+            <button class="btn btn-pallet" id="btn-semi-p2" onclick="semiDecision('P2')" disabled>
+              📍 Pallet 2
+            </button>
+            <button class="btn btn-ignore" id="btn-semi-ig" onclick="semiDecision('ignorar')" disabled>
+              ⏭️ Ignorar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-auto" class="mode-panel">
+        <div class="card">
+          <h2 class="card-title">🤖 Modo Automático</h2>
+          <div class="auto-info">
+            <p class="info-text">El sistema detecta cajas y ejecuta<br>el pick & place de forma autónoma.</p>
+            <p class="info-text-sub">Prioridad: Pallet 1 → Pallet 2</p>
+          </div>
+          <div class="auto-status">
+            <div class="auto-status-row">
+              <span class="auto-label">Estado:</span>
+              <span class="auto-val" id="auto-state">Esperando caja...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">📊 Estado de Pallets</h2>
+        <div class="pallets">
+          <div class="pallet-card" id="pallet-card-1">
+            <div class="pallet-header">
+              <span class="pallet-name">PALLET 1</span>
+              <span class="pallet-badge" id="pallet1-badge">0 / 3</span>
+            </div>
+            <div class="pallet-boxes" id="pallet1-boxes">
+              <div class="box-slot empty" id="p1-slot-1"></div>
+              <div class="box-slot empty" id="p1-slot-2"></div>
+              <div class="box-slot empty" id="p1-slot-3"></div>
+            </div>
+            <button class="btn btn-clear-pallet" id="btn-clear-p1" onclick="clearPallet(1)" disabled>🗑️ Vaciar Pallet</button>
+          </div>
+
+          <div class="pallet-card" id="pallet-card-2">
+            <div class="pallet-header">
+              <span class="pallet-name">PALLET 2</span>
+              <span class="pallet-badge" id="pallet2-badge">0 / 3</span>
+            </div>
+            <div class="pallet-boxes" id="pallet2-boxes">
+              <div class="box-slot empty" id="p2-slot-1"></div>
+              <div class="box-slot empty" id="p2-slot-2"></div>
+              <div class="box-slot empty" id="p2-slot-3"></div>
+            </div>
+            <button class="btn btn-clear-pallet" id="btn-clear-p2" onclick="clearPallet(2)" disabled>🗑️ Vaciar Pallet</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">📡 Telemetría del Sistema</h2>
+        <div class="metrics">
+          <div class="metric"><span class="metric-label">Memoria libre</span><span class="metric-val" id="m-mem">—</span></div>
+          <div class="metric"><span class="metric-label">WiFi RSSI</span><span class="metric-val" id="m-rssi">—</span></div>
+          <div class="metric"><span class="metric-label">Reconexiones</span><span class="metric-val" id="m-recon">—</span></div>
+          <div class="metric"><span class="metric-label">Cmds ESP32</span><span class="metric-val" id="m-cmds">—</span></div>
+          <div class="metric"><span class="metric-label">Msgs recibidos</span><span class="metric-val" id="m-msgs">0</span></div>
+          <div class="metric"><span class="metric-label">Cmds enviados</span><span class="metric-val" id="m-sent">0</span></div>
+          <div class="metric"><span class="metric-label">Último reset</span><span class="metric-val" id="m-reset">—</span></div>
+        </div>
+        <div class="metrics-btn-row">
+          <button class="btn btn-status" onclick="requestStatus()">↯ Solicitar Status</button>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="right-col">
+      <div class="console-wrap">
+        <div class="console-header">
+          <h2 class="card-title">📋 Consola de Logs</h2>
+          <div class="console-ctrl">
+            <label class="toggle-label">
+              <input type="checkbox" id="chk-scroll" checked />Auto-scroll
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="chk-debug" />DEBUG
+            </label>
+            <button class="btn btn-clear-log" onclick="clearConsole()">🗑️ Limpiar</button>
+          </div>
+        </div>
+        <div class="console" id="console"></div>
+        <div class="console-legend">
+          <span class="leg debug">DEBUG</span>
+          <span class="leg info">INFO</span>
+          <span class="leg warn">WARN</span>
+          <span class="leg error">ERROR</span>
+          <span class="leg rx-tag">← ESP32</span>
+          <span class="leg tx-tag">→ GUI</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-info"><span>Broker:</span> <code class="highlight">192.168.1.50:9001 (privado)</code></div>
+    <div class="footer-info"><span>Topics:</span> <code class="highlight">robot/cmd</code> | <code class="highlight">robot/log</code></div>
+    <div class="footer-info"><span>Pines:</span> <code class="highlight">Servos: 25, 26, 27, 32</code> | <code class="highlight">Sensor KY-032: 33</code></div>
+    <div class="footer-info"><span>Auth:</span> <code class="highlight">JWT + MQTT ACL</code></div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="robot_script_vs.js"></script>
+</body>
+</html>

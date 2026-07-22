@@ -1,0 +1,37 @@
+# =============================================================================
+# requirements.txt — Backend de autenticación (Fase 2, v5.0)
+# [SEC] Versiones fijas (==), no rangos (>=). Categoría OWASP #6
+# ("Componentes vulnerables/desactualizados") exige dependencias conocidas
+# y reproducibles, no "lo que sea la última versión al momento de instalar".
+#
+# Antes de la entrega, correr:
+#   pip install pip-audit
+#   pip-audit -r requirements.txt
+# para confirmar que ninguna de estas versiones tiene CVEs conocidos.
+# =============================================================================
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# JWT
+python-jose[cryptography]==3.3.0
+
+# Hashing de contraseñas
+# [SEC] bcrypt se fija en 4.0.1 deliberadamente: passlib 1.7.4 (última
+# versión estable al momento de escribir esto) tiene un bug conocido de
+# detección de versión con bcrypt>=4.1, que dispara un warning interno
+# "error reading bcrypt version" al hashear. No es una falla de seguridad
+# (el hash se genera y verifica correctamente), pero es ruido evitable.
+# Verificado en este proyecto: bcrypt==4.0.1 + passlib==1.7.4 = sin warnings.
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+
+# Carga de variables de entorno desde .env
+python-dotenv==1.0.1
+
+# Requerido por FastAPI para parsear multipart/form-data (login con form,
+# no usado en esta versión que recibe JSON, pero queda documentado por si
+# se migra a OAuth2PasswordRequestForm en una iteración futura)
+python-multipart==0.0.20

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autorización de Operador · Brazo Robótico</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="robot_style.css" />
+  <link rel="stylesheet" href="login_style.css" />
+</head>
+
+<body class="login-body">
+
+  <main class="login-wrap">
+
+    <!-- ══════════════════════════════════════════════════════════════
+         Encabezado — replica .brand del header del panel principal
+         para que sea inequívoco que es la misma aplicación, no una
+         pantalla de login genérica.
+         ══════════════════════════════════════════════════════════════ -->
+    <div class="login-brand">
+      <div class="brand-icon">🤖</div>
+      <div class="brand-text">
+        <span class="brand-title">SISTEMA PICK &amp; PLACE</span>
+        <span class="brand-sub">Autorización de Operador Requerida</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         Panel de login — estética "terminal de control de acceso"
+         ══════════════════════════════════════════════════════════════ -->
+    <section class="login-card">
+
+      <!-- Indicador de estado del backend, verificado en vivo al cargar.
+           Reusa el patrón visual .badge ya existente en el panel principal,
+           para que el operador vea ANTES de intentar loguearse si el
+           backend está disponible — evita el escenario confuso de
+           "¿por qué no funciona?" cuando el problema es que uvicorn
+           no está corriendo. -->
+      <div class="backend-status" id="backend-status">
+        <span class="badge-dot" id="backend-dot"></span>
+        <span class="backend-status-label">BACKEND AUTH</span>
+        <span class="backend-status-val" id="backend-status-val">Verificando...</span>
+      </div>
+
+      <form class="login-form" id="login-form" autocomplete="off">
+
+        <label class="login-label" for="input-username">
+          <span class="login-prompt">&gt;</span> Usuario
+        </label>
+        <input
+          type="text"
+          id="input-username"
+          class="login-input"
+          placeholder="ej. francisco"
+          autocomplete="username"
+          required
+          maxlength="64"
+        />
+
+        <label class="login-label" for="input-password">
+          <span class="login-prompt">&gt;</span> Contraseña
+        </label>
+        <input
+          type="password"
+          id="input-password"
+          class="login-input"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+          maxlength="128"
+        />
+
+        <!-- Área de error: oculta por defecto, se llena con el mensaje
+             EXACTO devuelto por el backend (ver auth.js, attemptLogin).
+             Nunca se reinterpreta el mensaje en el frontend (ver ADR
+             de seguridad: el backend ya decidió qué exponer). -->
+        <div class="login-error hidden" id="login-error" role="alert"></div>
+
+        <button type="submit" class="btn btn-login" id="btn-login">
+          🔓 AUTORIZAR ACCESO
+        </button>
+      </form>
+
+      <p class="login-footnote">
+        Acceso restringido a operadores habilitados del sistema IC2.
+      </p>
+
+    </section>
+
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="login_script.js"></script>
+</body>
+</html>

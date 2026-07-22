@@ -1,0 +1,25 @@
+# =============================================================================
+# .gitignore — backend/
+# [SEC] Regla no negociable: el .env real (con secretos reales) NUNCA se
+# versiona. Solo .env.example (con placeholders) va al repositorio.
+# =============================================================================
+
+# Variables de entorno reales — contiene JWT_SECRET_KEY y hashes de usuarios
+.env
+
+# Entornos virtuales de Python
+venv/
+.venv/
+env/
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs del backend (si se configuran a futuro)
+*.log
+
+# Archivos de IDE
+.vscode/
+.idea/
